@@ -1,5 +1,3 @@
-
-
 -- Load guard: if the script was already loaded, clean up the prior instance
 -- before continuing. Previously this just returned and required the user to
 -- manually unload, which would fail silently on re-execute.
@@ -5785,7 +5783,7 @@ slashes_module:create_slider({
 })
 
 detectionstab:create_module({
-    title = 'Anti-Phantom [BETA]',
+    title = 'Anti-Phantom',
     flag = 'Anti_Phantom',
     description = '',
     section = 'left',
