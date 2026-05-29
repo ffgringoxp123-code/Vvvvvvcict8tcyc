@@ -5783,7 +5783,7 @@ slashes_module:create_slider({
 })
 
 detectionstab:create_module({
-    title = 'Anti-Phantom [BETA]',
+    title = 'Anti-Phantom',
     flag = 'Anti_Phantom',
     description = '',
     section = 'left',
