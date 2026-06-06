@@ -1,0 +1,271 @@
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "DarkWebBlue_GUI_Only"
+gui.ResetOnSpawn = false
+gui.Parent = CoreGui
+
+local containerSize = UDim2.new(0, 680, 0, 460)
+local minimizedSize = UDim2.new(0, 170, 0, 36)
+
+local Container = Instance.new("Frame")
+Container.Name = "Container"
+Container.Size = containerSize
+Container.Position = UDim2.new(0.5, -340, 0.5, -230)
+Container.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Container.BorderSizePixel = 0
+Container.Parent = gui
+Container.Active = true
+Container.ClipsDescendants = true
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 12)
+Corner.Parent = Container
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(0, 170, 255)
+Stroke.Thickness = 1
+Stroke.Parent = Container
+
+local DragDetector = Instance.new("Frame")
+DragDetector.Name = "DragDetector"
+DragDetector.BackgroundTransparency = 1
+DragDetector.Size = UDim2.new(1, 0, 0, 36)
+DragDetector.Parent = Container
+DragDetector.Active = true
+
+local dragging = false
+local dragStart
+local startPos
+
+DragDetector.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = Container.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+DragDetector.InputChanged:Connect(function(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local delta = input.Position - dragStart
+		Container.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- Thanh tiêu đề
+local TitleBar = Instance.new("Frame")
+TitleBar.Name = "TitleBar"
+TitleBar.BackgroundTransparency = 1
+TitleBar.Size = UDim2.new(1, 0, 0, 36)
+TitleBar.Position = UDim2.new(0, 0, 0, 0)
+TitleBar.Parent = Container
+
+local Icon = Instance.new("ImageButton")
+Icon.Image = "rbxassetid://129430365420845"
+Icon.BackgroundTransparency = 1
+Icon.Position = UDim2.new(0, 10, 0, 6)
+Icon.Size = UDim2.new(0, 24, 0, 24)
+Icon.Parent = TitleBar
+
+-- TextLabel chính (DarkWeb.Blue)
+local ClientName = Instance.new("TextLabel")
+ClientName.Text = "DarkWeb.Blue"
+ClientName.TextColor3 = Color3.fromRGB(0, 170, 255)
+ClientName.BackgroundTransparency = 1
+ClientName.Position = UDim2.new(0, 40, 0, 8)
+ClientName.Size = UDim2.new(0, 120, 0, 20)
+ClientName.TextXAlignment = Enum.TextXAlignment.Left
+ClientName.TextSize = 14
+ClientName.Font = Enum.Font.GothamBold
+ClientName.Parent = TitleBar
+
+-- Tạo bóng đổ cho chữ
+local ClientShadow = Instance.new("TextLabel")
+ClientShadow.Text = "DarkWeb.Blue"
+ClientShadow.TextColor3 = Color3.fromRGB(0, 100, 200)
+ClientShadow.BackgroundTransparency = 1
+ClientShadow.Position = UDim2.new(0, 40, 0, 8)
+ClientShadow.Size = UDim2.new(0, 120, 0, 20)
+ClientShadow.TextXAlignment = Enum.TextXAlignment.Left
+ClientShadow.TextSize = 14
+ClientShadow.Font = Enum.Font.GothamBold
+ClientShadow.TextTransparency = 0.4
+ClientShadow.Parent = TitleBar
+ClientShadow.ZIndex = 0
+
+-- Biến thời gian riêng để tránh os.clock() bị reset
+local elapsedTime = 0
+local glowConnection
+
+local function startGlowEffect()
+	glowConnection = RunService.Heartbeat:Connect(function(dt)
+		if minimized then return end
+
+		-- Tích lũy thời gian thực
+		elapsedTime = elapsedTime + dt
+
+		local t = elapsedTime
+		
+		-- Đổi màu chữ chính: Xanh (0.55) → Trắng (sat=0) → Xanh (0.55)
+		local hue = 0.55  -- Xanh dương cố định
+		local sat = 0.5 + math.sin(t * 0.8) * 0.5  -- 0.0 → 1.0 → 0.0
+		
+		ClientName.TextColor3 = Color3.fromHSV(hue, sat, 1.0)
+
+		-- Di chuyển bóng sang trái phải
+		local offsetX = math.sin(t * 2.5) * 3
+		ClientShadow.Position = UDim2.new(0, 40 + offsetX, 0, 8 + math.sin(t * 2.5) * 0.5)
+
+		-- Đổi màu bóng theo chữ
+		local shadowSat = math.clamp(sat - 0.2, 0, 1)
+		ClientShadow.TextColor3 = Color3.fromHSV(hue, shadowSat, 0.8)
+
+		-- Nhấp nháy transparency nhẹ
+		ClientShadow.TextTransparency = 0.3 + math.sin(t * 3) * 0.15
+	end)
+end
+
+-- Nội dung chính
+local Content = Instance.new("Frame")
+Content.Name = "Content"
+Content.BackgroundTransparency = 1
+Content.Size = UDim2.new(1, 0, 1, -46)
+Content.Position = UDim2.new(0, 0, 0, 46)
+Content.Parent = Container
+Content.ClipsDescendants = true
+
+local TopDivider = Instance.new("Frame")
+TopDivider.Size = UDim2.new(0.85, 0, 0, 1)
+TopDivider.Position = UDim2.new(0.075, 0, 0, 0)
+TopDivider.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+TopDivider.BorderSizePixel = 0
+TopDivider.Parent = Content
+
+local Tabs = Instance.new("ScrollingFrame")
+Tabs.Size = UDim2.new(0, 129, 1, -14)
+Tabs.Position = UDim2.new(0.026, 0, 0.035, 0)
+Tabs.BackgroundTransparency = 1
+Tabs.ScrollBarThickness = 0
+Tabs.Parent = Content
+
+local SideDivider = Instance.new("Frame")
+SideDivider.Size = UDim2.new(0, 2, 1, -20)
+SideDivider.Position = UDim2.new(0.235, 0, 0.045, 0)
+SideDivider.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+SideDivider.BorderSizePixel = 0
+SideDivider.Parent = Content
+
+local Sections = Instance.new("Folder")
+Sections.Parent = Content
+
+-- Tính vị trí minimize từ click
+local function computeClickPosition(input)
+	local absX, absY = 0, 0
+	if input then
+		absX = input.Position.X
+		absY = input.Position.Y
+	else
+		local absPos = Container.AbsolutePosition
+		absX = absPos.X
+		absY = absPos.Y
+	end
+
+	local halfMinW = minimizedSize.X.Offset / 2
+	local halfMinH = minimizedSize.Y.Offset / 2
+
+	local newAbsX = absX - halfMinW
+	local newAbsY = absY - halfMinH
+
+	local viewportSize = workspace.CurrentCamera.ViewportSize
+	newAbsX = math.clamp(newAbsX, 0, viewportSize.X - minimizedSize.X.Offset)
+	newAbsY = math.clamp(newAbsY, 0, viewportSize.Y - minimizedSize.Y.Offset)
+
+	return UDim2.new(0, newAbsX, 0, newAbsY)
+end
+
+local minimized = false
+local oldPosition = Container.Position
+local tween
+
+local function toggleMinimize(input)
+	if tween then
+		tween:Cancel()
+	end
+
+	minimized = not minimized
+
+	local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+	if minimized then
+		oldPosition = Container.Position
+		local targetPosition = computeClickPosition(input)
+		local targetCorner = UDim.new(0, 4)
+
+		tween = TweenService:Create(Container, tweenInfo, {
+			Size = minimizedSize,
+			Position = targetPosition,
+		})
+		tween:Play()
+
+		TweenService:Create(Corner, tweenInfo, {
+			CornerRadius = targetCorner
+		}):Play()
+
+		TweenService:Create(Stroke, tweenInfo, {
+			Thickness = 1
+		}):Play()
+
+		task.delay(0.05, function()
+			if minimized then
+				Content.Visible = false
+				Content.Size = UDim2.new(1, 0, 0, 0)
+			end
+		end)
+	else
+		Content.Visible = true
+
+		tween = TweenService:Create(Container, tweenInfo, {
+			Size = containerSize,
+			Position = oldPosition,
+		})
+		tween:Play()
+
+		TweenService:Create(Corner, tweenInfo, {
+			CornerRadius = UDim.new(0, 12)
+		}):Play()
+
+		TweenService:Create(Stroke, tweenInfo, {
+			Thickness = 1
+		}):Play()
+
+		Content.Size = UDim2.new(1, 0, 1, -46)
+	end
+end
+
+Icon.MouseButton1Click:Connect(function(input)
+	toggleMinimize(input)
+end)
+
+DragDetector.MouseButton1Click:Connect(function(input)
+	toggleMinimize(input)
+end)
+
+-- Khởi động hiệu ứng
+startGlowEffect()
+
+print("DarkWeb.Blue GUI Only Loaded")
