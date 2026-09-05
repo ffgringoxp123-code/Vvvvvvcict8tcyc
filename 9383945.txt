@@ -52,29 +52,6 @@ showBindWindow = false,
 spamBindKey = "P"
 }
 
-local CONFIG_FOLDER = "SKRScript"
-local CONFIG_PATH = CONFIG_FOLDER .. "/config.json"
-local CONFIG_FS = type(isfolder)=="function" and type(makefolder)=="function" and type(isfile)=="function" and type(readfile)=="function" and type(writefile)=="function"
-local function SaveSKRConfig()
-    if not CONFIG_FS then return false end
-    return pcall(function()
-        if not isfolder(CONFIG_FOLDER) then makefolder(CONFIG_FOLDER) end
-        writefile(CONFIG_PATH, game:GetService("HttpService"):JSONEncode(cfg))
-    end)
-end
-local function LoadSKRConfig()
-    if not CONFIG_FS or not isfile(CONFIG_PATH) then return end
-    pcall(function()
-        local loaded=game:GetService("HttpService"):JSONDecode(readfile(CONFIG_PATH))
-        if type(loaded)=="table" then
-            for key,default in pairs(cfg) do
-                local value=loaded[key]
-                if value~=nil and type(value)==type(default) then cfg[key]=value end
-            end
-        end
-    end)
-end
-LoadSKRConfig()
 cfg.spamThreshold = math.max(0, cfg.spamThreshold or 0)
 cfg.distanceMultiplier = math.max(0.8, cfg.distanceMultiplier or 1.0)
 
