@@ -609,7 +609,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/ffgri
 local UI = Library._new()
 
 local MainCat = UI:create_category("Main")
-local Parry = MainCat:create_tab("Parry", "rbxassetid://10709812159")
+local Parry = MainCat:create_tab("Parry", "rbxassetid://swords")
 
 local ParryLeft = Parry:create_group("Auto Parry", "left")
 
@@ -7785,9 +7785,9 @@ getgenv().__runUnlockAll = runUnlockAll
 
 
 local VisualCat = UI:create_category("Visual")
-local Detection = VisualCat:create_tab("Detection", "rbxassetid://117564972951337")
-local ESP = VisualCat:create_tab("ESP", "rbxassetid://101377186242044")
-local Unlock = VisualCat:create_tab("Unlock", "rbxassetid://101377186242044")
+local Detection = VisualCat:create_tab("Detection", "rbxassetid://shield")
+local ESP = VisualCat:create_tab("ESP", "rbxassetid://eye")
+local Unlock = VisualCat:create_tab("Unlock", "rbxassetid://lock")
 local UnlockGroup = Unlock:create_group("Unlock", "left")
 UnlockGroup:create_toggle("unlock_all", {
     title = "Unlock All",
